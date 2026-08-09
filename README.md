@@ -47,10 +47,16 @@ Put the results in `ADMIN_PASSWORD_HASH` and `ADMIN_SESSION_SECRET`. Set
 `ADMIN_NAME` and `ADMIN_EMAIL` to whoever should be able to log in at
 `/admin`.
 
-> **Escape every `$` in the bcrypt hash as `\$`** (e.g. `\$2b\$12\$...`).
-> Next.js's env loader does `$VAR`-style interpolation on `.env` files, and
-> an unescaped `$2b`/`$12`/etc. segment gets silently replaced with an empty
-> string — the login will fail with no obvious error otherwise.
+> **In `.env.local`, escape every `$` in the bcrypt hash as `\$`** (e.g.
+> `\$2b\$12\$...`). Next.js's env loader does `$VAR`-style interpolation on
+> `.env` files, and an unescaped `$2b`/`$12`/etc. segment gets silently
+> replaced with an empty string — login fails with no obvious error
+> otherwise.
+>
+> **In the Vercel dashboard, use the hash UNescaped** (no backslashes).
+> Vercel injects environment variables directly into `process.env`; it
+> doesn't parse them through Next's `.env` interpolation, so a
+> backslash-escaped hash pasted there would be wrong in the other direction.
 
 > The admin password was shared in plain text once, in chat, while setting
 > this project up. Treat it as already exposed — pick a **new** password
