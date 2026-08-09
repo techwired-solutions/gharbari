@@ -1,0 +1,38 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-ink: #17312b;
+  --color-leaf: #246a55;
+  --color-leaf-dark: #1b5442;
+  --color-sand: #f6f1e8;
+  --color-sand-dim: #eaf0ea;
+  --color-clay: #c96b42;
+  --color-clay-dark: #a4402c;
+  --color-line: #d9d4c9;
+
+  --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
+}
+
+@layer base {
+  body {
+    background: var(--color-sand);
+    color: var(--color-ink);
+  }
+
+  ::selection {
+    background: var(--color-leaf);
+    color: white;
+  }
+}
+
+@layer utilities {
+  .hero-overlay {
+    background: linear-gradient(
+      120deg,
+      rgba(18, 43, 37, 0.94) 0%,
+      rgba(18, 43, 37, 0.78) 45%,
+      rgba(18, 43, 37, 0.35) 100%
+    );
+  }
+}
