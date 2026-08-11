@@ -21,6 +21,7 @@ export interface Listing {
   description: string;
   contact_name: string;
   contact_number: string;
+  image_urls: string[];
   created_at: string;
 }
 
@@ -41,3 +42,11 @@ export const BEDROOM_OPTIONS: Bedrooms[] = [
   "3 bedrooms",
   "4+ bedrooms",
 ];
+
+// Bedrooms only makes sense for a place people actually live in — not land
+// or a commercial space. Used to conditionally show/hide the field and stat
+// across the request form, admin form, and both read-only displays.
+export const PROPERTY_TYPES_WITH_BEDROOMS: PropertyType[] = ["House", "Apartment"];
+export function propertyTypeHasBedrooms(type: PropertyType | ""): boolean {
+  return PROPERTY_TYPES_WITH_BEDROOMS.includes(type as PropertyType);
+}

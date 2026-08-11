@@ -5,8 +5,11 @@ import {
   BEDROOM_OPTIONS,
   LISTING_TYPES,
   PROPERTY_TYPES,
+  propertyTypeHasBedrooms,
   type NewListingInput,
+  type PropertyType,
 } from "@/lib/types";
+import { ImagePicker } from "@/components/ImagePicker";
 
 const inputClass =
   "w-full rounded-lg border border-line bg-white px-3 py-2.5 text-sm outline-none transition focus:border-leaf focus:ring-4 focus:ring-leaf/15";
@@ -23,6 +26,7 @@ const emptyValues: ListingFormValues = {
   description: "",
   contact_name: "",
   contact_number: "",
+  image_urls: [],
 };
 
 export function AdminListingForm({
@@ -39,9 +43,18 @@ export function AdminListingForm({
   onCancel: () => void;
 }) {
   const [values, setValues] = useState<ListingFormValues>(initialValues ?? emptyValues);
+  const showBedrooms = propertyTypeHasBedrooms(values.property_type);
 
   function update<K extends keyof ListingFormValues>(key: K, value: ListingFormValues[K]) {
     setValues((prev) => ({ ...prev, [key]: value }));
+  }
+
+  function updatePropertyType(next: PropertyType) {
+    setValues((prev) => ({
+      ...prev,
+      property_type: next,
+      bedrooms: propertyTypeHasBedrooms(next) ? prev.bedrooms : "Not specified",
+    }));
   }
 
   function handleSubmit(e: FormEvent) {
@@ -71,7 +84,7 @@ export function AdminListingForm({
         <select
           className={inputClass}
           value={values.property_type}
-          onChange={(e) => update("property_type", e.target.value as ListingFormValues["property_type"])}
+          onChange={(e) => updatePropertyType(e.target.value as PropertyType)}
         >
           {PROPERTY_TYPES.map((option) => (
             <option key={option} value={option}>
@@ -103,20 +116,22 @@ export function AdminListingForm({
         />
       </label>
 
-      <label className="text-sm">
-        <span className="mb-1 block font-semibold text-ink">Bedrooms</span>
-        <select
-          className={inputClass}
-          value={values.bedrooms}
-          onChange={(e) => update("bedrooms", e.target.value as ListingFormValues["bedrooms"])}
-        >
-          {BEDROOM_OPTIONS.map((option) => (
-            <option key={option} value={option}>
-              {option}
-            </option>
-          ))}
-        </select>
-      </label>
+      {showBedrooms && (
+        <label className="text-sm">
+          <span className="mb-1 block font-semibold text-ink">Bedrooms</span>
+          <select
+            className={inputClass}
+            value={values.bedrooms}
+            onChange={(e) => update("bedrooms", e.target.value as ListingFormValues["bedrooms"])}
+          >
+            {BEDROOM_OPTIONS.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
 
       <label className="text-sm">
         <span className="mb-1 block font-semibold text-ink">Area</span>
@@ -139,6 +154,15 @@ export function AdminListingForm({
           onChange={(e) => update("description", e.target.value)}
         />
       </label>
+
+      <div className="sm:col-span-2">
+        <ImagePicker
+          value={values.image_urls}
+          onChange={(image_urls) => update("image_urls", image_urls)}
+          label="Photos"
+          helpText="Up to 4 photos, 5MB each."
+        />
+      </div>
 
       <label className="text-sm">
         <span className="mb-1 block font-semibold text-ink">Contact name</span>

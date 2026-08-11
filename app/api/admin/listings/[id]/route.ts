@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { newListingSchema } from "@/lib/validation";
+import { deleteListingFromSheet, syncToSheetSafely, updateListingInSheet } from "@/lib/google-sheets";
+import type { Listing } from "@/lib/types";
 
 const updateSchema = newListingSchema
   .omit({ website: true, formOpenedAt: true })
@@ -31,6 +33,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  await syncToSheetSafely(() => updateListingInSheet(data as Listing), "admin-update");
+
   return NextResponse.json({ listing: data });
 }
 
@@ -44,5 +49,8 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  await syncToSheetSafely(() => deleteListingFromSheet(id), "admin-delete");
+
   return NextResponse.json({ ok: true });
 }

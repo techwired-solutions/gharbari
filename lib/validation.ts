@@ -1,5 +1,20 @@
 import { z } from "zod";
 
+export const MAX_LISTING_IMAGES = 4;
+
+// Only accept URLs that actually point into our own listing-photos bucket —
+// otherwise the image_urls field could be used to store arbitrary hotlinked
+// URLs instead of photos that were genuinely uploaded through the app.
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+const listingPhotoUrlPrefix = `${supabaseUrl}/storage/v1/object/public/listing-photos/`;
+
+const imageUrlSchema = z
+  .string()
+  .url()
+  .refine((url) => url.startsWith(listingPhotoUrlPrefix), {
+    message: "Image must be uploaded through the form",
+  });
+
 /**
  * Server-side validation for a new listing submission. Mirrors the check
  * constraints in supabase/schema.sql — keep the two in sync.
@@ -21,6 +36,7 @@ export const newListingSchema = z.object({
     .min(6, "Enter a valid contact number")
     .max(20, "Enter a valid contact number")
     .regex(/^[0-9+\-\s()]+$/, "Enter a valid contact number"),
+  image_urls: z.array(imageUrlSchema).max(MAX_LISTING_IMAGES, "Up to 4 photos only").default([]),
   // Honeypot field — real visitors never fill this in. Bots that
   // autofill every input will, and we silently drop the submission.
   website: z.string().max(0, "Spam detected").optional().or(z.literal("")),

@@ -2,21 +2,36 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useLanguage } from "@/components/LanguageProvider";
-import type { Listing, ListingType } from "@/lib/types";
+import { ImagePicker } from "@/components/ImagePicker";
+import type { Copy } from "@/lib/translations";
+import { propertyTypeHasBedrooms, type Listing, type ListingType, type PropertyType, type Bedrooms } from "@/lib/types";
 
 type Mode = "find" | "list";
 type Status = { kind: "idle" | "info" | "success" | "error"; message: string };
 
 const emptyStatus: Status = { kind: "idle", message: "" };
 
+// A "find" request only makes sense as Buy/Rent; a "list" request only makes
+// sense as Sell/Rent out — showing all four options in both modes let people
+// submit contradictory combinations (e.g. "Sell" while on the Find tab).
+const LISTING_TYPES_BY_MODE: Record<Mode, ListingType[]> = {
+  find: ["Buy", "Rent"],
+  list: ["Sell", "Rent out"],
+};
+
 export function RequestForm({ onCreated }: { onCreated: (listing: Listing) => void }) {
   const { t } = useLanguage();
   const [mode, setMode] = useState<Mode>("find");
   const [listingType, setListingType] = useState<ListingType>("Buy");
+  const [propertyType, setPropertyType] = useState<PropertyType | "">("");
+  const [bedrooms, setBedrooms] = useState<Bedrooms>("Not specified");
   const [submitting, setSubmitting] = useState(false);
   const [status, setStatus] = useState<Status>(emptyStatus);
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
   const formRef = useRef<HTMLFormElement>(null);
   const openedAt = useRef(0);
+
+  const showBedrooms = propertyTypeHasBedrooms(propertyType);
 
   // Recorded as a side effect (not during render) — read by lib/validation's
   // fill-time check to help distinguish real visitors from bots.
@@ -27,6 +42,13 @@ export function RequestForm({ onCreated }: { onCreated: (listing: Listing) => vo
   function handleModeChange(next: Mode) {
     setMode(next);
     setListingType(next === "find" ? "Buy" : "Sell");
+  }
+
+  function handlePropertyTypeChange(next: PropertyType) {
+    setPropertyType(next);
+    if (!propertyTypeHasBedrooms(next)) {
+      setBedrooms("Not specified");
+    }
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -42,14 +64,15 @@ export function RequestForm({ onCreated }: { onCreated: (listing: Listing) => vo
 
     const payload = {
       listing_type: listingType,
-      property_type: data.get("property_type") as string,
+      property_type: propertyType,
       location: (data.get("location") as string)?.trim(),
       price_range: (data.get("price_range") as string)?.trim(),
-      bedrooms: data.get("bedrooms") as string,
+      bedrooms,
       area: (data.get("area") as string)?.trim() || undefined,
       description: (data.get("description") as string)?.trim(),
       contact_name: (data.get("contact_name") as string)?.trim(),
       contact_number: (data.get("contact_number") as string)?.trim(),
+      image_urls: imageUrls,
       formOpenedAt: openedAt.current,
     };
 
@@ -80,6 +103,9 @@ export function RequestForm({ onCreated }: { onCreated: (listing: Listing) => vo
 
       onCreated(listing);
       form.reset();
+      setImageUrls([]);
+      setPropertyType("");
+      setBedrooms("Not specified");
       openedAt.current = Date.now();
       handleModeChange("find");
       setStatus({ kind: "success", message: t.statusSuccess });
@@ -148,15 +174,23 @@ export function RequestForm({ onCreated }: { onCreated: (listing: Listing) => vo
               onChange={(e) => setListingType(e.target.value as ListingType)}
               className="w-full rounded-xl border border-line bg-white px-4 py-3.5 text-sm outline-none transition focus:border-leaf focus:ring-4 focus:ring-leaf/15"
             >
-              <option value="Buy">{t.optBuy}</option>
-              <option value="Rent">{t.optRent}</option>
-              <option value="Sell">{t.optSell}</option>
-              <option value="Rent out">{t.optRentOut}</option>
+              {LISTING_TYPES_BY_MODE[mode].map((option) => (
+                <option key={option} value={option}>
+                  {listingTypeLabel(option, t)}
+                </option>
+              ))}
             </select>
           </Field>
 
           <Field label={t.fieldPropertyType} htmlFor="property_type">
-            <select id="property_type" name="property_type" required defaultValue="" className={selectClass}>
+            <select
+              id="property_type"
+              name="property_type"
+              required
+              value={propertyType}
+              onChange={(e) => handlePropertyTypeChange(e.target.value as PropertyType)}
+              className={selectClass}
+            >
               <option value="" disabled>
                 {t.optSelectPropertyType}
               </option>
@@ -189,15 +223,23 @@ export function RequestForm({ onCreated }: { onCreated: (listing: Listing) => vo
             />
           </Field>
 
-          <Field label={t.fieldBedrooms} htmlFor="bedrooms">
-            <select id="bedrooms" name="bedrooms" defaultValue="Not specified" className={selectClass}>
-              <option value="Not specified">{t.optNotSpecified}</option>
-              <option value="1 bedroom">{t.opt1Bed}</option>
-              <option value="2 bedrooms">{t.opt2Bed}</option>
-              <option value="3 bedrooms">{t.opt3Bed}</option>
-              <option value="4+ bedrooms">{t.opt4Bed}</option>
-            </select>
-          </Field>
+          {showBedrooms && (
+            <Field label={t.fieldBedrooms} htmlFor="bedrooms">
+              <select
+                id="bedrooms"
+                name="bedrooms"
+                value={bedrooms}
+                onChange={(e) => setBedrooms(e.target.value as Bedrooms)}
+                className={selectClass}
+              >
+                <option value="Not specified">{t.optNotSpecified}</option>
+                <option value="1 bedroom">{t.opt1Bed}</option>
+                <option value="2 bedrooms">{t.opt2Bed}</option>
+                <option value="3 bedrooms">{t.opt3Bed}</option>
+                <option value="4+ bedrooms">{t.opt4Bed}</option>
+              </select>
+            </Field>
+          )}
 
           <Field label={t.fieldArea} htmlFor="area">
             <input id="area" name="area" maxLength={60} placeholder={t.placeholderArea} className={inputClass} />
@@ -215,6 +257,15 @@ export function RequestForm({ onCreated }: { onCreated: (listing: Listing) => vo
                 className={`${inputClass} resize-y`}
               />
             </Field>
+          </div>
+
+          <div className="sm:col-span-2">
+            <ImagePicker
+              value={imageUrls}
+              onChange={setImageUrls}
+              label={t.fieldPhotos}
+              helpText={t.photosHelp}
+            />
           </div>
 
           <Field label={t.fieldName} htmlFor="contact_name">
@@ -263,6 +314,19 @@ export function RequestForm({ onCreated }: { onCreated: (listing: Listing) => vo
 const inputClass =
   "w-full rounded-xl border border-line bg-white px-4 py-3.5 text-sm outline-none transition focus:border-leaf focus:ring-4 focus:ring-leaf/15";
 const selectClass = inputClass;
+
+function listingTypeLabel(type: ListingType, t: Copy): string {
+  switch (type) {
+    case "Buy":
+      return t.optBuy;
+    case "Rent":
+      return t.optRent;
+    case "Sell":
+      return t.optSell;
+    case "Rent out":
+      return t.optRentOut;
+  }
+}
 
 function Field({
   label,

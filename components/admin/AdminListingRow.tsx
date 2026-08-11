@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Pencil, Trash2 } from "lucide-react";
-import type { Listing } from "@/lib/types";
+import { propertyTypeHasBedrooms, type Listing } from "@/lib/types";
 import { AdminListingForm, type ListingFormValues } from "@/components/admin/AdminListingForm";
 
 export function AdminListingRow({
@@ -51,6 +51,7 @@ export function AdminListingRow({
             description: listing.description,
             contact_name: listing.contact_name,
             contact_number: listing.contact_number,
+            image_urls: listing.image_urls ?? [],
           }}
           submitLabel="Save changes"
           busy={busy}
@@ -91,6 +92,15 @@ export function AdminListingRow({
         </div>
       </div>
 
+      {listing.image_urls && listing.image_urls.length > 0 && (
+        <div className="mt-3 flex gap-2">
+          {listing.image_urls.map((url) => (
+            // eslint-disable-next-line @next/next/no-img-element -- dynamic Supabase Storage URL, not a local asset
+            <img key={url} src={url} alt="" className="h-16 w-16 rounded-lg object-cover" />
+          ))}
+        </div>
+      )}
+
       <dl className="mt-4 grid grid-cols-2 gap-3 border-y border-[#e4e8e2] py-3 text-sm sm:grid-cols-4">
         <div>
           <dt className="text-xs font-bold uppercase tracking-wide text-[#789087]">Budget</dt>
@@ -100,10 +110,12 @@ export function AdminListingRow({
           <dt className="text-xs font-bold uppercase tracking-wide text-[#789087]">Area</dt>
           <dd className="mt-1 font-semibold">{listing.area || "—"}</dd>
         </div>
-        <div>
-          <dt className="text-xs font-bold uppercase tracking-wide text-[#789087]">Bedrooms</dt>
-          <dd className="mt-1 font-semibold">{listing.bedrooms}</dd>
-        </div>
+        {propertyTypeHasBedrooms(listing.property_type) && (
+          <div>
+            <dt className="text-xs font-bold uppercase tracking-wide text-[#789087]">Bedrooms</dt>
+            <dd className="mt-1 font-semibold">{listing.bedrooms}</dd>
+          </div>
+        )}
         <div>
           <dt className="text-xs font-bold uppercase tracking-wide text-[#789087]">Contact</dt>
           <dd className="mt-1 font-semibold">

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { newListingSchema, MIN_FILL_TIME_MS } from "@/lib/validation";
 import { isRateLimited, requestKeyFromHeaders } from "@/lib/rate-limit";
+import { appendListingToSheet, syncToSheetSafely } from "@/lib/google-sheets";
+import type { Listing } from "@/lib/types";
 
 export async function GET() {
   const { data, error } = await supabase
@@ -51,6 +53,10 @@ export async function POST(req: NextRequest) {
   if (error) {
     return NextResponse.json({ error: "Could not save listing" }, { status: 500 });
   }
+
+  // Best-effort mirror to Google Sheets — never blocks or fails the
+  // response if the Sheet is unreachable or unconfigured.
+  await syncToSheetSafely(() => appendListingToSheet(data as Listing), "public-create");
 
   return NextResponse.json({ listing: data }, { status: 201 });
 }

@@ -50,6 +50,9 @@ export interface Copy {
   fieldDescription: string;
   placeholderDescription: string;
 
+  fieldPhotos: string;
+  photosHelp: string;
+
   fieldName: string;
   placeholderName: string;
 
@@ -135,6 +138,9 @@ export const translations: Record<Lang, Copy> = {
     placeholderDescription:
       "Share important details, preferred neighborhood, road access, facilities, and more.",
 
+    fieldPhotos: "Photos",
+    photosHelp: "Up to 4 photos, 5MB each.",
+
     fieldName: "Your name",
     placeholderName: "Your full name",
 
@@ -218,6 +224,9 @@ export const translations: Record<Lang, Copy> = {
     fieldDescription: "सम्पत्तिको विवरण",
     placeholderDescription:
       "महत्त्वपूर्ण विवरण, मनपर्ने क्षेत्र, बाटो पहुँच, सुविधाहरू आदि साझा गर्नुहोस्।",
+
+    fieldPhotos: "तस्बिरहरू",
+    photosHelp: "बढीमा ४ तस्बिर, प्रत्येक ५MB सम्म।",
 
     fieldName: "तपाईंको नाम",
     placeholderName: "पूरा नाम",

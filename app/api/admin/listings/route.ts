@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { newListingSchema } from "@/lib/validation";
+import { appendListingToSheet, syncToSheetSafely } from "@/lib/google-sheets";
+import type { Listing } from "@/lib/types";
 
 export async function GET() {
   const { data, error } = await supabaseAdmin()
@@ -35,6 +37,7 @@ export async function POST(req: NextRequest) {
       description: parsed.data.description,
       contact_name: parsed.data.contact_name,
       contact_number: parsed.data.contact_number,
+      image_urls: parsed.data.image_urls,
     })
     .select()
     .single();
@@ -42,5 +45,8 @@ export async function POST(req: NextRequest) {
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  await syncToSheetSafely(() => appendListingToSheet(data as Listing), "admin-create");
+
   return NextResponse.json({ listing: data }, { status: 201 });
 }
