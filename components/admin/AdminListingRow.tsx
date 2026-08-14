@@ -45,7 +45,9 @@ export function AdminListingRow({
             listing_type: listing.listing_type,
             property_type: listing.property_type,
             location: listing.location,
+            map_link: listing.map_link ?? "",
             price_range: listing.price_range,
+            price_negotiable: listing.price_negotiable,
             bedrooms: listing.bedrooms,
             area: listing.area ?? "",
             description: listing.description,
@@ -70,7 +72,19 @@ export function AdminListingRow({
             {listing.listing_type}
           </span>
           <h3 className="mt-2 text-lg font-bold text-ink">{listing.property_type}</h3>
-          <p className="text-sm text-ink/60">{listing.location}</p>
+          <p className="text-sm text-ink/60">
+            {listing.location}
+            {listing.map_link && (
+              <a
+                href={listing.map_link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ml-2 font-semibold text-leaf-dark hover:underline"
+              >
+                Map ↗
+              </a>
+            )}
+          </p>
         </div>
         <div className="flex gap-2">
           <button
@@ -104,7 +118,14 @@ export function AdminListingRow({
       <dl className="mt-4 grid grid-cols-2 gap-3 border-y border-[#e4e8e2] py-3 text-sm sm:grid-cols-4">
         <div>
           <dt className="text-xs font-bold uppercase tracking-wide text-[#789087]">Budget</dt>
-          <dd className="mt-1 font-semibold">{listing.price_range}</dd>
+          <dd className="mt-1 font-semibold">
+            {listing.price_range}
+            {listing.price_negotiable && (
+              <span className="ml-1.5 inline-flex rounded-full bg-[#f7e8dd] px-2 py-0.5 text-[10px] font-bold text-clay-dark align-middle">
+                Negotiable
+              </span>
+            )}
+          </dd>
         </div>
         <div>
           <dt className="text-xs font-bold uppercase tracking-wide text-[#789087]">Area</dt>

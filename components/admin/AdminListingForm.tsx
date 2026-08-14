@@ -20,7 +20,9 @@ const emptyValues: ListingFormValues = {
   listing_type: "Buy",
   property_type: "House",
   location: "",
+  map_link: "",
   price_range: "",
+  price_negotiable: false,
   bedrooms: "Not specified",
   area: "",
   description: "",
@@ -106,6 +108,17 @@ export function AdminListingForm({
       </label>
 
       <label className="text-sm">
+        <span className="mb-1 block font-semibold text-ink">Google Maps link</span>
+        <input
+          type="url"
+          maxLength={500}
+          className={inputClass}
+          value={values.map_link ?? ""}
+          onChange={(e) => update("map_link", e.target.value)}
+        />
+      </label>
+
+      <label className="text-sm">
         <span className="mb-1 block font-semibold text-ink">Budget / price</span>
         <input
           required
@@ -114,6 +127,16 @@ export function AdminListingForm({
           value={values.price_range}
           onChange={(e) => update("price_range", e.target.value)}
         />
+      </label>
+
+      <label className="flex items-end gap-2 pb-2.5 text-sm">
+        <input
+          type="checkbox"
+          className="h-4 w-4 rounded border-line accent-leaf"
+          checked={values.price_negotiable}
+          onChange={(e) => update("price_negotiable", e.target.checked)}
+        />
+        <span className="font-semibold text-ink">Price is negotiable</span>
       </label>
 
       {showBedrooms && (

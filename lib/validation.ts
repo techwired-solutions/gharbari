@@ -23,7 +23,9 @@ export const newListingSchema = z.object({
   listing_type: z.enum(["Buy", "Rent", "Sell", "Rent out"]),
   property_type: z.enum(["House", "Land", "Apartment", "Commercial space"]),
   location: z.string().trim().min(1, "Location is required").max(120),
+  map_link: z.string().trim().url("Enter a valid link").max(500).optional().or(z.literal("")),
   price_range: z.string().trim().min(1, "Budget / asking price is required").max(60),
+  price_negotiable: z.boolean().default(false),
   bedrooms: z
     .enum(["Not specified", "1 bedroom", "2 bedrooms", "3 bedrooms", "4+ bedrooms"])
     .default("Not specified"),

@@ -9,6 +9,7 @@ import type { Listing } from "@/lib/types";
 
 export function PropertyBoard({ initialListings }: { initialListings: Listing[] }) {
   const [listings, setListings] = useState<Listing[]>(initialListings);
+  const [searchQuery, setSearchQuery] = useState("");
 
   function handleCreated(listing: Listing) {
     setListings((prev) => [listing, ...prev]);
@@ -17,11 +18,11 @@ export function PropertyBoard({ initialListings }: { initialListings: Listing[] 
   return (
     <>
       <header className="w-full">
-        <Hero />
+        <Hero searchQuery={searchQuery} onSearchChange={setSearchQuery} />
       </header>
       <main className="w-full">
         <RequestSection onCreated={handleCreated} />
-        <ListingsBoard listings={listings} />
+        <ListingsBoard listings={listings} searchQuery={searchQuery} />
       </main>
       <SiteFooter />
     </>

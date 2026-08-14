@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
 
   const { data, error } = await supabase
     .from("listings")
-    .insert({ ...fields, area: fields.area || null })
+    .insert({ ...fields, area: fields.area || null, map_link: fields.map_link || null })
     .select()
     .single();
 

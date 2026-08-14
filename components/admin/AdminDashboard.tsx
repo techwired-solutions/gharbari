@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Home, LogOut, Plus, Search } from "lucide-react";
 import type { Listing } from "@/lib/types";
+import { listingMatchesQuery } from "@/lib/search";
 import { AdminListingForm, type ListingFormValues } from "@/components/admin/AdminListingForm";
 import { AdminListingRow } from "@/components/admin/AdminListingRow";
 
@@ -86,16 +87,10 @@ export function AdminDashboard({ adminName }: { adminName: string }) {
     router.refresh();
   }
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return listings;
-    return listings.filter((listing) =>
-      [listing.location, listing.property_type, listing.contact_name, listing.contact_number, listing.description]
-        .join(" ")
-        .toLowerCase()
-        .includes(q)
-    );
-  }, [listings, query]);
+  const filtered = useMemo(
+    () => listings.filter((listing) => listingMatchesQuery(listing, query)),
+    [listings, query]
+  );
 
   useEffect(() => {
     if (!notice) return;

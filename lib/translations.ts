@@ -33,9 +33,13 @@ export interface Copy {
 
   fieldLocation: string;
   placeholderLocation: string;
+  fieldMapLink: string;
+  placeholderMapLink: string;
 
   fieldPrice: string;
   placeholderPrice: string;
+  priceFixed: string;
+  priceNegotiable: string;
 
   fieldBedrooms: string;
   optNotSpecified: string;
@@ -58,6 +62,7 @@ export interface Copy {
 
   fieldNumber: string;
   placeholderNumber: string;
+  contactPrivacyNote: string;
 
   submit: string;
   submitting: string;
@@ -72,11 +77,17 @@ export interface Copy {
   listingCountLoading: string;
   listingCountUnavailable: string;
   emptyState: string;
+  noSearchResults: string;
+
+  searchAriaLabel: string;
+  searchPlaceholder: string;
 
   cardBudget: string;
   cardArea: string;
   cardBedrooms: string;
-  cardContact: string;
+  cardNegotiable: string;
+  cardViewOnMap: string;
+  cardContactWhatsapp: string;
 
   footerText: string;
   footerNote: string;
@@ -120,9 +131,13 @@ export const translations: Record<Lang, Copy> = {
 
     fieldLocation: "Location",
     placeholderLocation: "e.g. Lalitpur, Kathmandu",
+    fieldMapLink: "Google Maps link (optional)",
+    placeholderMapLink: "Paste a Google Maps link",
 
     fieldPrice: "Budget / asking price",
     placeholderPrice: "e.g. NPR 2–3 crore",
+    priceFixed: "Fixed",
+    priceNegotiable: "Negotiable",
 
     fieldBedrooms: "Bedrooms",
     optNotSpecified: "Not specified",
@@ -146,6 +161,7 @@ export const translations: Record<Lang, Copy> = {
 
     fieldNumber: "Contact number",
     placeholderNumber: "Your phone number",
+    contactPrivacyNote: "Kept private — we'll reach out directly, it's never shown publicly.",
 
     submit: "Share request",
     submitting: "Sharing…",
@@ -161,11 +177,17 @@ export const translations: Record<Lang, Copy> = {
     listingCountUnavailable: "Listings unavailable",
     emptyState:
       "No requests have been shared yet. Be the first to tell the community what you're looking for or what property you have available.",
+    noSearchResults: "No listings match your search.",
+
+    searchAriaLabel: "Search listings",
+    searchPlaceholder: "Search by location, property type…",
 
     cardBudget: "Budget / price",
     cardArea: "Area",
     cardBedrooms: "Bedrooms",
-    cardContact: "Contact",
+    cardNegotiable: "Negotiable",
+    cardViewOnMap: "View on map",
+    cardContactWhatsapp: "Message on WhatsApp",
 
     footerText: "GharBari · A simpler way to connect around property.",
     footerNote: "Please verify property details before making decisions.",
@@ -207,9 +229,13 @@ export const translations: Record<Lang, Copy> = {
 
     fieldLocation: "स्थान",
     placeholderLocation: "उदाहरण: ललितपुर, काठमाडौं",
+    fieldMapLink: "गुगल म्याप लिंक (वैकल्पिक)",
+    placeholderMapLink: "गुगल म्याप लिंक पेस्ट गर्नुहोस्",
 
     fieldPrice: "बजेट / माग गरेको मूल्य",
     placeholderPrice: "उदाहरण: रु. २–३ करोड",
+    priceFixed: "स्थिर",
+    priceNegotiable: "मिलाउन मिल्ने",
 
     fieldBedrooms: "कोठा संख्या",
     optNotSpecified: "उल्लेख नगरिएको",
@@ -233,6 +259,7 @@ export const translations: Record<Lang, Copy> = {
 
     fieldNumber: "सम्पर्क नम्बर",
     placeholderNumber: "फोन नम्बर",
+    contactPrivacyNote: "गोप्य राखिन्छ — हामी सिधै सम्पर्क गर्नेछौं, यो सार्वजनिक रूपमा कहिल्यै देखिँदैन।",
 
     submit: "अनुरोध पठाउनुहोस्",
     submitting: "पठाउँदै…",
@@ -248,11 +275,17 @@ export const translations: Record<Lang, Copy> = {
     listingCountUnavailable: "सूचीहरू उपलब्ध छैनन्",
     emptyState:
       "अहिलेसम्म कुनै अनुरोध साझा गरिएको छैन। तपाईं के खोज्दै हुनुहुन्छ वा कुन सम्पत्ति उपलब्ध छ भनी सामुदायलाई सबैभन्दा पहिले बताउनुहोस्।",
+    noSearchResults: "तपाईंको खोजसँग मेल खाने कुनै सूची छैन।",
+
+    searchAriaLabel: "सूचीहरू खोज्नुहोस्",
+    searchPlaceholder: "स्थान, सम्पत्तिको प्रकार अनुसार खोज्नुहोस्…",
 
     cardBudget: "बजेट / मूल्य",
     cardArea: "क्षेत्रफल",
     cardBedrooms: "कोठा",
-    cardContact: "सम्पर्क",
+    cardNegotiable: "मिलाउन मिल्ने",
+    cardViewOnMap: "नक्सामा हेर्नुहोस्",
+    cardContactWhatsapp: "WhatsApp मा सम्पर्क गर्नुहोस्",
 
     footerText: "घरबारी · सम्पत्तिको वरिपरि जोडिने सजिलो तरिका।",
     footerNote: "निर्णय गर्नुअघि कृपया सम्पत्तिको विवरण पुष्टि गर्नुहोस्।",

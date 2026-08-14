@@ -15,7 +15,9 @@ export interface Listing {
   listing_type: ListingType;
   property_type: PropertyType;
   location: string;
+  map_link: string | null;
   price_range: string;
+  price_negotiable: boolean;
   bedrooms: Bedrooms;
   area: string | null;
   description: string;

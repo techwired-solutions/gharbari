@@ -9,7 +9,9 @@ const HEADER_ROW = [
   "Type",
   "Property Type",
   "Location",
+  "Map Link",
   "Budget / Price",
+  "Negotiable",
   "Bedrooms",
   "Area",
   "Description",
@@ -33,7 +35,9 @@ function listingToRow(listing: Listing): string[] {
     listing.listing_type,
     listing.property_type,
     listing.location,
+    listing.map_link ?? "",
     listing.price_range,
+    listing.price_negotiable ? "Yes" : "No",
     listing.bedrooms,
     listing.area ?? "",
     listing.description,
@@ -104,14 +108,14 @@ let headerEnsured = false;
 
 async function ensureHeaderRow(): Promise<void> {
   if (headerEnsured) return;
-  const res = await sheetsFetch(`/values/${encodeURIComponent(SHEET_NAME)}!A1:A1`);
-  const data = (await res.json()) as { values?: string[][] };
-  if (!data.values || data.values.length === 0) {
-    await sheetsFetch(
-      `/values/${encodeURIComponent(SHEET_NAME)}!A1:L1?valueInputOption=RAW`,
-      { method: "PUT", body: JSON.stringify({ values: [HEADER_ROW] }) }
-    );
-  }
+  // Always (re)write the header rather than only writing when empty — cheap
+  // and idempotent, and it self-heals the sheet if HEADER_ROW's columns
+  // ever change shape (as happened when map_link/price_negotiable were
+  // inserted mid-row) instead of leaving a stale header from before.
+  await sheetsFetch(
+    `/values/${encodeURIComponent(SHEET_NAME)}!A1:N1?valueInputOption=RAW`,
+    { method: "PUT", body: JSON.stringify({ values: [HEADER_ROW] }) }
+  );
   headerEnsured = true;
 }
 
@@ -147,7 +151,7 @@ export async function appendListingToSheet(listing: Listing): Promise<void> {
   if (!isGoogleSheetsConfigured()) return;
   await ensureHeaderRow();
   await sheetsFetch(
-    `/values/${encodeURIComponent(SHEET_NAME)}!A:L:append?valueInputOption=USER_ENTERED`,
+    `/values/${encodeURIComponent(SHEET_NAME)}!A:N:append?valueInputOption=USER_ENTERED`,
     { method: "POST", body: JSON.stringify({ values: [listingToRow(listing)] }) }
   );
 }
@@ -161,7 +165,7 @@ export async function updateListingInSheet(listing: Listing): Promise<void> {
     return;
   }
   await sheetsFetch(
-    `/values/${encodeURIComponent(SHEET_NAME)}!A${row}:L${row}?valueInputOption=USER_ENTERED`,
+    `/values/${encodeURIComponent(SHEET_NAME)}!A${row}:N${row}?valueInputOption=USER_ENTERED`,
     { method: "PUT", body: JSON.stringify({ values: [listingToRow(listing)] }) }
   );
 }

@@ -25,7 +25,9 @@ Vercel's free tier.
    the same way. This adds the `image_urls` column and creates the
    `listing-photos` storage bucket (public read, 5MB/file limit, images only,
    public upload) that the photo field uses.
-4. Go to **Project Settings → API** and copy:
+4. Run [`supabase/migration_002_broker_fields.sql`](supabase/migration_002_broker_fields.sql)
+   the same way. Adds `price_negotiable` and `map_link` columns.
+5. Go to **Project Settings → API** and copy:
    - **Project URL** → `NEXT_PUBLIC_SUPABASE_URL`
    - **anon public key** → `NEXT_PUBLIC_SUPABASE_ANON_KEY`
    - **service_role key** → `SUPABASE_SERVICE_ROLE_KEY` (keep this secret —
@@ -95,6 +97,24 @@ touching Supabase directly — sign in with the email/password from your env
 vars. Public visitors can only submit new requests; they cannot edit or
 delete anything (enforced by RLS, not just the UI).
 
+## Broker contact model
+
+GharBari acts as the broker between the two sides of a listing. The public
+board never shows a submitter's raw name/phone — every listing card instead
+has a **"Message on WhatsApp"** button that opens a chat with the fixed
+brokerage number (`lib/constants.ts` → `BROKER_WHATSAPP_NUMBER`), pre-filled
+with which listing the enquiry is about. The submitter's real contact info
+is still collected (required on the form) and stays visible only in the
+admin dashboard, so staff can follow up directly. To change the brokerage
+number, edit `BROKER_WHATSAPP_NUMBER` in `lib/constants.ts` and redeploy.
+
+## Search
+
+A search icon in the top nav expands into a live filter over the community
+board — matches on location, property type, listing type, description, and
+price. Client-side only, no extra request; the admin dashboard has the same
+filter behavior in its own search box.
+
 ## Photos
 
 Both the public form and the admin dashboard have a photo field — up to 4
@@ -157,10 +177,13 @@ lib/
   admin-auth.ts              Session token signing/verification
   upload-image.ts            Direct browser → Supabase Storage upload helper
   google-sheets.ts            Optional Google Sheets mirror (create/update/delete)
+  constants.ts                 Broker WhatsApp number + wa.me link builder
+  search.ts                    Shared listing search/filter predicate
   translations.ts            EN / NE copy
   validation.ts               Shared zod schema for a listing submission
 proxy.ts                     Protects /admin and /api/admin routes (Next.js 16's
                               renamed middleware.ts)
 supabase/schema.sql          Table + RLS policies
 supabase/migration_001_images.sql  image_urls column + listing-photos bucket
+supabase/migration_002_broker_fields.sql  price_negotiable + map_link columns
 ```

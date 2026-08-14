@@ -22,6 +22,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
   const updates: Record<string, unknown> = { ...parsed.data };
   if ("area" in updates) updates.area = updates.area || null;
+  if ("map_link" in updates) updates.map_link = updates.map_link || null;
 
   const { data, error } = await supabaseAdmin()
     .from("listings")

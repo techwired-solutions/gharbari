@@ -1,5 +1,6 @@
-import { MapPin, Phone } from "lucide-react";
+import { MapPin, MessageCircle, ExternalLink } from "lucide-react";
 import { propertyTypeHasBedrooms, type Listing } from "@/lib/types";
+import { buildWhatsAppLink } from "@/lib/constants";
 import type { translations } from "@/lib/translations";
 
 const typeStyles: Record<Listing["listing_type"], string> = {
@@ -45,12 +46,30 @@ export function ListingCard({
         <p className="mt-2 flex items-center gap-2 text-sm text-ink/65">
           <MapPin className="h-4 w-4 shrink-0" />
           <span>{listing.location}</span>
+          {listing.map_link && (
+            <a
+              href={listing.map_link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-xs font-bold text-leaf-dark hover:underline"
+            >
+              {t.cardViewOnMap}
+              <ExternalLink className="h-3 w-3" />
+            </a>
+          )}
         </p>
 
         <div className="mt-5 grid grid-cols-2 gap-3 border-y border-[#e4e8e2] py-4 text-sm">
           <div>
             <p className="text-xs font-bold uppercase tracking-wide text-[#789087]">{t.cardBudget}</p>
-            <p className="mt-1 font-semibold">{listing.price_range}</p>
+            <p className="mt-1 font-semibold">
+              {listing.price_range}
+              {listing.price_negotiable && (
+                <span className="ml-1.5 inline-flex rounded-full bg-[#f7e8dd] px-2 py-0.5 text-[10px] font-bold text-clay-dark align-middle">
+                  {t.cardNegotiable}
+                </span>
+              )}
+            </p>
           </div>
           <div>
             <p className="text-xs font-bold uppercase tracking-wide text-[#789087]">{t.cardArea}</p>
@@ -62,16 +81,19 @@ export function ListingCard({
               <p className="mt-1 font-semibold">{listing.bedrooms}</p>
             </div>
           )}
-          <div>
-            <p className="text-xs font-bold uppercase tracking-wide text-[#789087]">{t.cardContact}</p>
-            <p className="mt-1 flex items-center gap-1.5 truncate font-semibold">
-              <Phone className="h-3.5 w-3.5 shrink-0" />
-              {listing.contact_name}
-            </p>
-          </div>
         </div>
 
         <p className="mt-4 text-sm leading-relaxed text-ink/70">{listing.description}</p>
+
+        <a
+          href={buildWhatsAppLink(listing)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-4 flex items-center justify-center gap-2 rounded-xl bg-[#25D366] px-4 py-3 text-sm font-bold text-white transition hover:brightness-95"
+        >
+          <MessageCircle className="h-4 w-4" />
+          {t.cardContactWhatsapp}
+        </a>
       </div>
     </article>
   );
