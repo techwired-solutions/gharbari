@@ -1,9 +1,9 @@
 import { MapPin, MessageCircle, ExternalLink } from "lucide-react";
-import { propertyTypeHasBedrooms, type Listing } from "@/lib/types";
+import { propertyTypeHasBedrooms, type PublicListing } from "@/lib/types";
 import { buildWhatsAppLink } from "@/lib/constants";
 import type { translations } from "@/lib/translations";
 
-const typeStyles: Record<Listing["listing_type"], string> = {
+const typeStyles: Record<PublicListing["listing_type"], string> = {
   Buy: "bg-[#e5f0e9] text-leaf-dark",
   Rent: "bg-[#e5f0e9] text-leaf-dark",
   Sell: "bg-[#f7e8dd] text-clay-dark",
@@ -14,7 +14,7 @@ export function ListingCard({
   listing,
   t,
 }: {
-  listing: Listing;
+  listing: PublicListing;
   t: (typeof translations)["en"];
 }) {
   const [coverImage, ...restImages] = listing.image_urls ?? [];

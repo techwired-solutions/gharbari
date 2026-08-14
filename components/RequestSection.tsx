@@ -3,9 +3,9 @@
 import { MapPin, PhoneCall } from "lucide-react";
 import { useLanguage } from "@/components/LanguageProvider";
 import { RequestForm } from "@/components/RequestForm";
-import type { Listing } from "@/lib/types";
+import type { PublicListing } from "@/lib/types";
 
-export function RequestSection({ onCreated }: { onCreated: (listing: Listing) => void }) {
+export function RequestSection({ onCreated }: { onCreated: (listing: PublicListing) => void }) {
   const { t } = useLanguage();
 
   return (

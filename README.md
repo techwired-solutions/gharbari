@@ -27,7 +27,12 @@ Vercel's free tier.
    public upload) that the photo field uses.
 4. Run [`supabase/migration_002_broker_fields.sql`](supabase/migration_002_broker_fields.sql)
    the same way. Adds `price_negotiable` and `map_link` columns.
-5. Go to **Project Settings → API** and copy:
+5. Run [`supabase/migration_003_public_contact_privacy.sql`](supabase/migration_003_public_contact_privacy.sql)
+   the same way. Revokes the public anon key's ability to read
+   `contact_name`/`contact_number` at the database level — see "Broker
+   contact model" below for why this matters beyond just the UI not
+   rendering them.
+6. Go to **Project Settings → API** and copy:
    - **Project URL** → `NEXT_PUBLIC_SUPABASE_URL`
    - **anon public key** → `NEXT_PUBLIC_SUPABASE_ANON_KEY`
    - **service_role key** → `SUPABASE_SERVICE_ROLE_KEY` (keep this secret —
@@ -108,6 +113,20 @@ is still collected (required on the form) and stays visible only in the
 admin dashboard, so staff can follow up directly. To change the brokerage
 number, edit `BROKER_WHATSAPP_NUMBER` in `lib/constants.ts` and redeploy.
 
+This is enforced at the database level, not just by the UI not rendering
+those fields. `migration_003_public_contact_privacy.sql` revokes the anon
+role's SELECT on `contact_name`/`contact_number` entirely — the public anon
+key is necessarily embedded in the browser bundle, so without this, anyone
+could read every submitter's raw phone number straight from Supabase's REST
+API (or from Next.js's hydration payload) regardless of what the page
+visibly shows. `/api/listings` (public) and `app/page.tsx` both fetch an
+explicit public column list matching that grant; the public POST handler
+uses the service-role client for the insert itself (so it can still get the
+full row back to sync to Google Sheets) but strips those two fields before
+the response reaches the browser (`toPublicListing()` in `lib/types.ts`).
+`/api/admin/*` is unaffected — it always uses the service-role key, which
+bypasses RLS and column grants.
+
 ## Search
 
 A search icon in the top nav expands into a live filter over the community
@@ -186,4 +205,5 @@ proxy.ts                     Protects /admin and /api/admin routes (Next.js 16's
 supabase/schema.sql          Table + RLS policies
 supabase/migration_001_images.sql  image_urls column + listing-photos bucket
 supabase/migration_002_broker_fields.sql  price_negotiable + map_link columns
+supabase/migration_003_public_contact_privacy.sql  revokes anon SELECT on contact_name/contact_number
 ```

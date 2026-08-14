@@ -5,13 +5,13 @@ import { Hero } from "@/components/Hero";
 import { RequestSection } from "@/components/RequestSection";
 import { ListingsBoard } from "@/components/ListingsBoard";
 import { SiteFooter } from "@/components/SiteFooter";
-import type { Listing } from "@/lib/types";
+import type { PublicListing } from "@/lib/types";
 
-export function PropertyBoard({ initialListings }: { initialListings: Listing[] }) {
-  const [listings, setListings] = useState<Listing[]>(initialListings);
+export function PropertyBoard({ initialListings }: { initialListings: PublicListing[] }) {
+  const [listings, setListings] = useState<PublicListing[]>(initialListings);
   const [searchQuery, setSearchQuery] = useState("");
 
-  function handleCreated(listing: Listing) {
+  function handleCreated(listing: PublicListing) {
     setListings((prev) => [listing, ...prev]);
   }
 

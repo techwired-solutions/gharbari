@@ -4,9 +4,9 @@ import { useMemo } from "react";
 import { useLanguage } from "@/components/LanguageProvider";
 import { ListingCard } from "@/components/ListingCard";
 import { listingMatchesQuery } from "@/lib/search";
-import type { Listing } from "@/lib/types";
+import type { PublicListing } from "@/lib/types";
 
-export function ListingsBoard({ listings, searchQuery }: { listings: Listing[]; searchQuery: string }) {
+export function ListingsBoard({ listings, searchQuery }: { listings: PublicListing[]; searchQuery: string }) {
   const { t } = useLanguage();
 
   const filtered = useMemo(

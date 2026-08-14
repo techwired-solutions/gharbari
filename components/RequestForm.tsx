@@ -5,7 +5,7 @@ import { Building2, Search } from "lucide-react";
 import { useLanguage } from "@/components/LanguageProvider";
 import { ImagePicker } from "@/components/ImagePicker";
 import type { Copy } from "@/lib/translations";
-import { propertyTypeHasBedrooms, type Listing, type ListingType, type PropertyType, type Bedrooms } from "@/lib/types";
+import { propertyTypeHasBedrooms, type PublicListing, type ListingType, type PropertyType, type Bedrooms } from "@/lib/types";
 
 type Mode = "find" | "list";
 type Status = { kind: "idle" | "info" | "success" | "error"; message: string };
@@ -20,7 +20,7 @@ const LISTING_TYPES_BY_MODE: Record<Mode, ListingType[]> = {
   list: ["Sell", "Rent out"],
 };
 
-export function RequestForm({ onCreated }: { onCreated: (listing: Listing) => void }) {
+export function RequestForm({ onCreated }: { onCreated: (listing: PublicListing) => void }) {
   const { t } = useLanguage();
   const [mode, setMode] = useState<Mode>("find");
   const [listingType, setListingType] = useState<ListingType>("Buy");
@@ -107,7 +107,7 @@ export function RequestForm({ onCreated }: { onCreated: (listing: Listing) => vo
       });
 
       if (!res.ok) throw new Error("request failed");
-      const { listing } = (await res.json()) as { listing: Listing };
+      const { listing } = (await res.json()) as { listing: PublicListing };
 
       onCreated(listing);
       form.reset();

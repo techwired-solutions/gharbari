@@ -1,14 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 import { newListingSchema, MIN_FILL_TIME_MS } from "@/lib/validation";
 import { isRateLimited, requestKeyFromHeaders } from "@/lib/rate-limit";
 import { appendListingToSheet, syncToSheetSafely } from "@/lib/google-sheets";
-import type { Listing } from "@/lib/types";
+import { PUBLIC_LISTING_COLUMNS, toPublicListing, type Listing } from "@/lib/types";
 
 export async function GET() {
+  // Anon-key client + an explicit public column list: contact_name/number
+  // are excluded here in the app layer, and unreadable by the anon role at
+  // all at the database level (migration_003_public_contact_privacy.sql).
   const { data, error } = await supabase
     .from("listings")
-    .select("*")
+    .select(PUBLIC_LISTING_COLUMNS)
     .order("created_at", { ascending: false })
     .limit(200);
 
@@ -44,7 +48,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Submission rejected" }, { status: 400 });
   }
 
-  const { data, error } = await supabase
+  // Uses the service-role client for the write itself (this still runs
+  // entirely server-side, gated by the honeypot/rate-limit/zod checks
+  // above — nothing here is reachable directly from the browser). That's
+  // what lets this handler get the full row back — including
+  // contact_name/contact_number — to sync to Google Sheets, while the
+  // response sent to the browser below has those two fields stripped: the
+  // anon key can't read them, and neither should the submitter's own
+  // fetch response, since that response could end up rendered.
+  const { data, error } = await supabaseAdmin()
     .from("listings")
     .insert({ ...fields, area: fields.area || null, map_link: fields.map_link || null })
     .select()
@@ -58,5 +70,5 @@ export async function POST(req: NextRequest) {
   // response if the Sheet is unreachable or unconfigured.
   await syncToSheetSafely(() => appendListingToSheet(data as Listing), "public-create");
 
-  return NextResponse.json({ listing: data }, { status: 201 });
+  return NextResponse.json({ listing: toPublicListing(data as Listing) }, { status: 201 });
 }
