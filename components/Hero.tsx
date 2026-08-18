@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Home, Search, X } from "lucide-react";
+import { Search, SquarePlus, X } from "lucide-react";
 import { useLanguage } from "@/components/LanguageProvider";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { HeroArt } from "@/components/HeroArt";
@@ -9,9 +9,11 @@ import { HeroArt } from "@/components/HeroArt";
 export function Hero({
   searchQuery,
   onSearchChange,
+  onOpenQuickForm,
 }: {
   searchQuery: string;
   onSearchChange: (query: string) => void;
+  onOpenQuickForm: () => void;
 }) {
   const { t } = useLanguage();
   const [searchOpen, setSearchOpen] = useState(false);
@@ -36,11 +38,8 @@ export function Hero({
       <div className="hero-overlay absolute inset-0" />
       <div className="relative mx-auto flex min-h-[520px] w-full max-w-7xl flex-col justify-between px-5 py-7 sm:px-8 lg:px-10">
         <nav className="flex items-center justify-between gap-3" aria-label="Primary navigation">
-          <a href="#top" className="flex items-center gap-2 text-white no-underline">
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15">
-              <Home className="h-5 w-5" strokeWidth={2.25} />
-            </span>
-            <span className="font-display text-lg font-bold tracking-tight">{t.brand}</span>
+          <a href="#top" className="font-display text-lg font-bold tracking-tight text-white no-underline">
+            {t.brand}
           </a>
 
           <div className="flex min-w-0 items-center gap-2">
@@ -75,12 +74,14 @@ export function Hero({
               </button>
             )}
             <LanguageToggle />
-            <a
-              className="hidden shrink-0 rounded-full border border-white/30 px-4 py-2 text-sm font-semibold text-white no-underline transition hover:bg-white/10 sm:inline-block"
-              href="#list-property"
+            <button
+              type="button"
+              onClick={onOpenQuickForm}
+              className="flex shrink-0 items-center gap-1.5 rounded-full bg-white px-3.5 py-2 text-sm font-bold text-ink no-underline transition hover:bg-white/90 sm:px-4"
             >
-              {t.navList}
-            </a>
+              <SquarePlus className="h-4 w-4 text-leaf" />
+              <span className="hidden sm:inline">{t.navGetStarted}</span>
+            </button>
           </div>
         </nav>
 

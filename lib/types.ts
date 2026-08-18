@@ -88,3 +88,13 @@ export const PROPERTY_TYPES_WITH_BEDROOMS: PropertyType[] = ["House", "Apartment
 export function propertyTypeHasBedrooms(type: PropertyType | ""): boolean {
   return PROPERTY_TYPES_WITH_BEDROOMS.includes(type as PropertyType);
 }
+
+// The community board mixes two different intents under one roof — people
+// looking for a property (Buy/Rent) and people offering one (Sell/Rent
+// out). Splitting them into a category filter makes "what am I even
+// looking at" obvious at a glance.
+export type ListingCategory = "all" | "requests" | "listings";
+export const CATEGORY_LISTING_TYPES: Record<Exclude<ListingCategory, "all">, ListingType[]> = {
+  requests: ["Buy", "Rent"],
+  listings: ["Sell", "Rent out"],
+};

@@ -7,7 +7,7 @@ export function LanguageToggle() {
 
   return (
     <div
-      className="flex rounded-full border border-white/30 bg-black/10 p-1"
+      className="flex shrink-0 rounded-full border border-white/30 bg-black/10 p-0.5"
       role="group"
       aria-label="Language selection"
     >
@@ -15,21 +15,23 @@ export function LanguageToggle() {
         type="button"
         onClick={() => setLang("en")}
         aria-pressed={lang === "en"}
-        className={`rounded-full px-3 py-1.5 text-xs font-bold transition ${
-          lang === "en" ? "bg-white text-ink" : "text-white/85 hover:text-white"
+        aria-label="English"
+        className={`rounded-full px-2.5 py-1.5 text-[11px] font-bold tracking-wide transition ${
+          lang === "en" ? "bg-white text-ink" : "text-white/80 hover:text-white"
         }`}
       >
-        English
+        EN
       </button>
       <button
         type="button"
         onClick={() => setLang("ne")}
         aria-pressed={lang === "ne"}
-        className={`rounded-full px-3 py-1.5 text-xs font-bold transition ${
-          lang === "ne" ? "bg-white text-ink" : "text-white/85 hover:text-white"
+        aria-label="नेपाली"
+        className={`rounded-full px-2.5 py-1.5 text-[11px] font-bold tracking-wide transition ${
+          lang === "ne" ? "bg-white text-ink" : "text-white/80 hover:text-white"
         }`}
       >
-        नेपाली
+        NE
       </button>
     </div>
   );

@@ -3,6 +3,7 @@ export type Lang = "en" | "ne";
 export interface Copy {
   brand: string;
   navList: string;
+  navGetStarted: string;
   heroKicker: string;
   heroTitle: string;
   heroDescription: string;
@@ -82,12 +83,21 @@ export interface Copy {
   searchAriaLabel: string;
   searchPlaceholder: string;
 
+  categoryAll: string;
+  categoryRequests: string;
+  categoryListings: string;
+  filterAllTypes: string;
+  filterAnyBedrooms: string;
+
   cardBudget: string;
   cardArea: string;
   cardBedrooms: string;
   cardNegotiable: string;
   cardViewOnMap: string;
   cardContactWhatsapp: string;
+  share: string;
+  shareListing: string;
+  linkCopied: string;
 
   footerText: string;
   footerNote: string;
@@ -97,6 +107,7 @@ export const translations: Record<Lang, Copy> = {
   en: {
     brand: "GharBari",
     navList: "List a property",
+    navGetStarted: "Get started",
     heroKicker: "Real estate, made neighborly",
     heroTitle: "Find the place that feels like home.",
     heroDescription:
@@ -182,12 +193,21 @@ export const translations: Record<Lang, Copy> = {
     searchAriaLabel: "Search listings",
     searchPlaceholder: "Search by location, property type…",
 
+    categoryAll: "All",
+    categoryRequests: "Looking for",
+    categoryListings: "Available",
+    filterAllTypes: "All types",
+    filterAnyBedrooms: "Any bedrooms",
+
     cardBudget: "Budget / price",
     cardArea: "Area",
     cardBedrooms: "Bedrooms",
     cardNegotiable: "Negotiable",
     cardViewOnMap: "View on map",
     cardContactWhatsapp: "Message on WhatsApp",
+    share: "Share",
+    shareListing: "Share this listing",
+    linkCopied: "Link copied!",
 
     footerText: "GharBari · A simpler way to connect around property.",
     footerNote: "Please verify property details before making decisions.",
@@ -195,6 +215,7 @@ export const translations: Record<Lang, Copy> = {
   ne: {
     brand: "घरबारी",
     navList: "सम्पत्ति सूचीकरण गर्नुहोस्",
+    navGetStarted: "सुरु गर्नुहोस्",
     heroKicker: "घर जग्गा, अझ सजिलो",
     heroTitle: "आफ्नो मनपर्ने घर फेला पार्नुहोस्।",
     heroDescription:
@@ -280,12 +301,21 @@ export const translations: Record<Lang, Copy> = {
     searchAriaLabel: "सूचीहरू खोज्नुहोस्",
     searchPlaceholder: "स्थान, सम्पत्तिको प्रकार अनुसार खोज्नुहोस्…",
 
+    categoryAll: "सबै",
+    categoryRequests: "खोजिरहेको",
+    categoryListings: "उपलब्ध",
+    filterAllTypes: "सबै प्रकार",
+    filterAnyBedrooms: "कुनै पनि कोठा",
+
     cardBudget: "बजेट / मूल्य",
     cardArea: "क्षेत्रफल",
     cardBedrooms: "कोठा",
     cardNegotiable: "मिलाउन मिल्ने",
     cardViewOnMap: "नक्सामा हेर्नुहोस्",
     cardContactWhatsapp: "WhatsApp मा सम्पर्क गर्नुहोस्",
+    share: "साझा गर्नुहोस्",
+    shareListing: "यो सूची साझा गर्नुहोस्",
+    linkCopied: "लिंक प्रतिलिपि गरियो!",
 
     footerText: "घरबारी · सम्पत्तिको वरिपरि जोडिने सजिलो तरिका।",
     footerNote: "निर्णय गर्नुअघि कृपया सम्पत्तिको विवरण पुष्टि गर्नुहोस्।",

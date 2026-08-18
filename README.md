@@ -56,7 +56,10 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
 Put the results in `ADMIN_PASSWORD_HASH` and `ADMIN_SESSION_SECRET`. Set
 `ADMIN_NAME` and `ADMIN_EMAIL` to whoever should be able to log in at
-`/admin`.
+`/admin`. Set `NEXT_PUBLIC_SITE_URL` to wherever the site is actually
+deployed (no trailing slash) — it's used to build share links, WhatsApp
+message links, and Open Graph preview metadata for individual listing
+pages, so it needs to match the real domain to work correctly.
 
 > **In `.env.local`, escape every `$` in the bcrypt hash as `\$`** (e.g.
 > `\$2b\$12\$...`). Next.js's env loader does `$VAR`-style interpolation on
@@ -108,7 +111,9 @@ GharBari acts as the broker between the two sides of a listing. The public
 board never shows a submitter's raw name/phone — every listing card instead
 has a **"Message on WhatsApp"** button that opens a chat with the fixed
 brokerage number (`lib/constants.ts` → `BROKER_WHATSAPP_NUMBER`), pre-filled
-with which listing the enquiry is about. The submitter's real contact info
+with which property the enquiry is about **and a direct link to that
+listing's page** — so whoever answers can open it and know exactly what's
+being asked about without back-and-forth. The submitter's real contact info
 is still collected (required on the form) and stays visible only in the
 admin dashboard, so staff can follow up directly. To change the brokerage
 number, edit `BROKER_WHATSAPP_NUMBER` in `lib/constants.ts` and redeploy.
@@ -127,12 +132,43 @@ the response reaches the browser (`toPublicListing()` in `lib/types.ts`).
 `/api/admin/*` is unaffected — it always uses the service-role key, which
 bypasses RLS and column grants.
 
-## Search
+## Search, categories & filters
 
 A search icon in the top nav expands into a live filter over the community
 board — matches on location, property type, listing type, description, and
 price. Client-side only, no extra request; the admin dashboard has the same
-filter behavior in its own search box.
+filter behavior in its own search box (shared logic in `lib/search.ts`).
+
+The board also splits listings into two categories — **Looking for**
+(Buy/Rent requests) and **Available** (Sell/Rent out listings) — since those
+represent opposite intents and mixing them together made the board harder
+to scan. A "Property type" and "Bedrooms" filter sit alongside the category
+tabs; all of it (search, category, filters) combines with AND logic. Price
+and area aren't filterable as numeric ranges since they're free-text fields
+on the form (`"NPR 2-3 crore"`, `"5 aana"`, etc.) rather than structured
+numbers — search still matches against their text. Turning them into real
+numeric ranges would mean redesigning the submission form to collect
+structured min/max values instead of free text, which is a bigger change;
+happy to do it as a follow-up if stricter filtering turns out to matter.
+
+## Listing pages & sharing
+
+Every listing has its own page at `/listing/[id]` — a full-size photo
+gallery, all details, the WhatsApp CTA, and a **Share** button (also on
+every card). Share uses the native share sheet on mobile
+(`navigator.share`) and falls back to copying the link on desktop. The page
+has Open Graph/Twitter Card metadata (title, description, first photo) so
+pasting a listing link into WhatsApp, Messenger, etc. shows a real preview
+card instead of a bare URL.
+
+## Nav quick-access form
+
+The "Get started" button in the nav opens the same Find/List form in a
+modal, so a visitor can submit a request or a listing from anywhere on the
+page without scrolling down to the embedded form section
+(`components/Modal.tsx` + `components/RequestForm.tsx`'s `variant="bare"`).
+Both instances share the same submit handler and update the same listings
+state; they're kept from colliding in the DOM via `idPrefix`.
 
 ## Photos
 
@@ -178,10 +214,12 @@ source of truth.
 ```
 app/
   page.tsx                 Public single-page board (server component, fetches initial listings)
+  listing/[id]/page.tsx    Individual listing page + OG metadata
+  listing/[id]/not-found.tsx  Branded 404 for a missing/removed listing
   api/listings/route.ts    Public GET (list) / POST (submit) — validated, rate-limited, honeypot-checked
   admin/
     login/page.tsx         Admin sign-in
-    page.tsx                Admin dashboard (protected by middleware.ts)
+    page.tsx                Admin dashboard (protected by proxy.ts)
   api/admin/
     login/route.ts         Verifies credentials, issues a signed session cookie
     logout/route.ts
@@ -189,6 +227,10 @@ app/
     listings/[id]/route.ts Admin PATCH (update) / DELETE
 components/                Public site UI (Hero, RequestForm, ListingsBoard, ...)
 components/ImagePicker.tsx  Shared photo upload/preview field (public form + admin)
+components/ListingDetail.tsx  The /listing/[id] page's content (gallery, CTA, share)
+components/ListingFilters.tsx  Category tabs + property type/bedrooms filters
+components/Modal.tsx          Generic dialog (portal, Esc/backdrop close) — used by the nav's quick-access form
+components/ShareButton.tsx    navigator.share with copy-link fallback
 components/admin/          Admin dashboard UI
 lib/
   supabase.ts               Anon-key client (RLS-scoped)
@@ -197,6 +239,7 @@ lib/
   upload-image.ts            Direct browser → Supabase Storage upload helper
   google-sheets.ts            Optional Google Sheets mirror (create/update/delete)
   constants.ts                 Broker WhatsApp number + wa.me link builder
+  site-url.ts                  Absolute site origin for share/WhatsApp/OG links
   search.ts                    Shared listing search/filter predicate
   translations.ts            EN / NE copy
   validation.ts               Shared zod schema for a listing submission

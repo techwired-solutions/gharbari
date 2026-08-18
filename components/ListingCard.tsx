@@ -1,6 +1,9 @@
+import Link from "next/link";
 import { MapPin, MessageCircle, ExternalLink } from "lucide-react";
 import { propertyTypeHasBedrooms, type PublicListing } from "@/lib/types";
 import { buildWhatsAppLink } from "@/lib/constants";
+import { getListingUrl } from "@/lib/site-url";
+import { ShareButton } from "@/components/ShareButton";
 import type { translations } from "@/lib/translations";
 
 const typeStyles: Record<PublicListing["listing_type"], string> = {
@@ -18,20 +21,27 @@ export function ListingCard({
   t: (typeof translations)["en"];
 }) {
   const [coverImage, ...restImages] = listing.image_urls ?? [];
+  const href = `/listing/${listing.id}`;
 
   return (
-    <article className="listing-card overflow-hidden rounded-2xl border border-[#dce2dc] bg-white shadow-sm">
-      {coverImage && (
-        <div className="relative aspect-[4/3] w-full overflow-hidden bg-sand-dim">
-          {/* eslint-disable-next-line @next/next/no-img-element -- dynamic Supabase Storage URL, not a local asset */}
-          <img src={coverImage} alt={listing.property_type} className="h-full w-full object-cover" />
-          {restImages.length > 0 && (
-            <span className="absolute bottom-2 right-2 rounded-full bg-ink/70 px-2.5 py-1 text-xs font-bold text-white">
-              +{restImages.length}
-            </span>
-          )}
-        </div>
-      )}
+    <article className="listing-card overflow-hidden rounded-2xl border border-[#dce2dc] bg-white shadow-sm transition hover:shadow-md">
+      <Link href={href} className="block no-underline">
+        {coverImage ? (
+          <div className="relative aspect-[4/3] w-full overflow-hidden bg-sand-dim">
+            {/* eslint-disable-next-line @next/next/no-img-element -- dynamic Supabase Storage URL, not a local asset */}
+            <img src={coverImage} alt={listing.property_type} className="h-full w-full object-cover" />
+            {restImages.length > 0 && (
+              <span className="absolute bottom-2 right-2 rounded-full bg-ink/70 px-2.5 py-1 text-xs font-bold text-white">
+                +{restImages.length}
+              </span>
+            )}
+          </div>
+        ) : (
+          <div className="flex aspect-[4/3] w-full items-center justify-center bg-sand-dim text-ink/25">
+            <MapPin className="h-8 w-8" />
+          </div>
+        )}
+      </Link>
 
       <div className="p-5">
         <div className="mb-4 flex items-start justify-between gap-3">
@@ -40,9 +50,18 @@ export function ListingCard({
           >
             {listing.listing_type}
           </span>
+          <ShareButton
+            url={getListingUrl(listing.id)}
+            title={`${listing.property_type} in ${listing.location} — GharBari`}
+            label={t.share}
+            copiedLabel={t.linkCopied}
+            iconOnly
+          />
         </div>
 
-        <h3 className="text-xl font-bold text-ink">{listing.property_type}</h3>
+        <Link href={href} className="no-underline">
+          <h3 className="text-xl font-bold text-ink transition hover:text-leaf-dark">{listing.property_type}</h3>
+        </Link>
         <p className="mt-2 flex items-center gap-2 text-sm text-ink/65">
           <MapPin className="h-4 w-4 shrink-0" />
           <span>{listing.location}</span>
@@ -83,17 +102,19 @@ export function ListingCard({
           )}
         </div>
 
-        <p className="mt-4 text-sm leading-relaxed text-ink/70">{listing.description}</p>
+        <p className="mt-4 line-clamp-3 text-sm leading-relaxed text-ink/70">{listing.description}</p>
 
-        <a
-          href={buildWhatsAppLink(listing)}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-4 flex items-center justify-center gap-2 rounded-xl bg-[#25D366] px-4 py-3 text-sm font-bold text-white transition hover:brightness-95"
-        >
-          <MessageCircle className="h-4 w-4" />
-          {t.cardContactWhatsapp}
-        </a>
+        <div className="mt-4 flex gap-2">
+          <a
+            href={buildWhatsAppLink(listing)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#25D366] px-4 py-3 text-sm font-bold text-white transition hover:brightness-95"
+          >
+            <MessageCircle className="h-4 w-4" />
+            {t.cardContactWhatsapp}
+          </a>
+        </div>
       </div>
     </article>
   );

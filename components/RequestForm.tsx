@@ -20,10 +20,25 @@ const LISTING_TYPES_BY_MODE: Record<Mode, ListingType[]> = {
   list: ["Sell", "Rent out"],
 };
 
-export function RequestForm({ onCreated }: { onCreated: (listing: PublicListing) => void }) {
+export function RequestForm({
+  onCreated,
+  variant = "embedded",
+  defaultMode = "find",
+  idPrefix = "",
+}: {
+  onCreated: (listing: PublicListing) => void;
+  /** "embedded": renders its own card (used in the page section). "bare":
+   * skips the card chrome — used inside Modal, which already supplies it. */
+  variant?: "embedded" | "bare";
+  defaultMode?: Mode;
+  /** Prefix for every field id — needed when two instances of this form
+   * (e.g. the embedded one and the nav's quick-access modal) can be
+   * mounted at once, so ids/htmlFor pairs never collide. */
+  idPrefix?: string;
+}) {
   const { t } = useLanguage();
-  const [mode, setMode] = useState<Mode>("find");
-  const [listingType, setListingType] = useState<ListingType>("Buy");
+  const [mode, setMode] = useState<Mode>(defaultMode);
+  const [listingType, setListingType] = useState<ListingType>(defaultMode === "find" ? "Buy" : "Sell");
   const [propertyType, setPropertyType] = useState<PropertyType | "">("");
   const [bedrooms, setBedrooms] = useState<Bedrooms>("Not specified");
   const [priceNegotiable, setPriceNegotiable] = useState(false);
@@ -37,6 +52,7 @@ export function RequestForm({ onCreated }: { onCreated: (listing: PublicListing)
   // A photo is something you have of a property you're listing, not
   // something you'd attach to a request to find one.
   const showPhotos = mode === "list";
+  const id = (name: string) => `${idPrefix}${name}`;
 
   // Recorded as a side effect (not during render) — read by lib/validation's
   // fill-time check to help distinguish real visitors from bots.
@@ -132,16 +148,8 @@ export function RequestForm({ onCreated }: { onCreated: (listing: PublicListing)
         ? "text-leaf"
         : "text-ink/60";
 
-  return (
-    <section
-      id="list-property"
-      className="rounded-[28px] bg-white p-5 shadow-[0_18px_50px_rgba(23,49,43,.10)] sm:p-8"
-      aria-labelledby="form-heading"
-    >
-      <h2 id="form-heading" className="sr-only">
-        Property request form
-      </h2>
-
+  const content = (
+    <>
       <div className="mb-7 flex rounded-2xl bg-sand-dim p-1.5" role="tablist" aria-label="Property request type">
         <button
           type="button"
@@ -172,14 +180,14 @@ export function RequestForm({ onCreated }: { onCreated: (listing: PublicListing)
       <form ref={formRef} onSubmit={handleSubmit} noValidate>
         {/* Honeypot — visually hidden from real users, catnip for bots. */}
         <div className="absolute left-[-9999px]" aria-hidden="true">
-          <label htmlFor="website">Website</label>
-          <input id="website" name="website" type="text" tabIndex={-1} autoComplete="off" />
+          <label htmlFor={id("website")}>Website</label>
+          <input id={id("website")} name="website" type="text" tabIndex={-1} autoComplete="off" />
         </div>
 
         <div className="grid gap-5 sm:grid-cols-2">
-          <Field label={t.fieldListingType} htmlFor="listing_type">
+          <Field label={t.fieldListingType} htmlFor={id("listing_type")}>
             <select
-              id="listing_type"
+              id={id("listing_type")}
               name="listing_type"
               value={listingType}
               onChange={(e) => setListingType(e.target.value as ListingType)}
@@ -193,9 +201,9 @@ export function RequestForm({ onCreated }: { onCreated: (listing: PublicListing)
             </select>
           </Field>
 
-          <Field label={t.fieldPropertyType} htmlFor="property_type">
+          <Field label={t.fieldPropertyType} htmlFor={id("property_type")}>
             <select
-              id="property_type"
+              id={id("property_type")}
               name="property_type"
               required
               value={propertyType}
@@ -212,9 +220,9 @@ export function RequestForm({ onCreated }: { onCreated: (listing: PublicListing)
             </select>
           </Field>
 
-          <Field label={t.fieldLocation} htmlFor="location">
+          <Field label={t.fieldLocation} htmlFor={id("location")}>
             <input
-              id="location"
+              id={id("location")}
               name="location"
               required
               maxLength={120}
@@ -223,9 +231,9 @@ export function RequestForm({ onCreated }: { onCreated: (listing: PublicListing)
             />
           </Field>
 
-          <Field label={t.fieldMapLink} htmlFor="map_link">
+          <Field label={t.fieldMapLink} htmlFor={id("map_link")}>
             <input
-              id="map_link"
+              id={id("map_link")}
               name="map_link"
               type="url"
               maxLength={500}
@@ -234,10 +242,10 @@ export function RequestForm({ onCreated }: { onCreated: (listing: PublicListing)
             />
           </Field>
 
-          <Field label={t.fieldPrice} htmlFor="price_range">
+          <Field label={t.fieldPrice} htmlFor={id("price_range")}>
             <div className="flex gap-2">
               <input
-                id="price_range"
+                id={id("price_range")}
                 name="price_range"
                 required
                 maxLength={60}
@@ -270,9 +278,9 @@ export function RequestForm({ onCreated }: { onCreated: (listing: PublicListing)
           </Field>
 
           {showBedrooms && (
-            <Field label={t.fieldBedrooms} htmlFor="bedrooms">
+            <Field label={t.fieldBedrooms} htmlFor={id("bedrooms")}>
               <select
-                id="bedrooms"
+                id={id("bedrooms")}
                 name="bedrooms"
                 value={bedrooms}
                 onChange={(e) => setBedrooms(e.target.value as Bedrooms)}
@@ -287,14 +295,14 @@ export function RequestForm({ onCreated }: { onCreated: (listing: PublicListing)
             </Field>
           )}
 
-          <Field label={t.fieldArea} htmlFor="area">
-            <input id="area" name="area" maxLength={60} placeholder={t.placeholderArea} className={inputClass} />
+          <Field label={t.fieldArea} htmlFor={id("area")}>
+            <input id={id("area")} name="area" maxLength={60} placeholder={t.placeholderArea} className={inputClass} />
           </Field>
 
           <div className="sm:col-span-2">
-            <Field label={t.fieldDescription} htmlFor="description">
+            <Field label={t.fieldDescription} htmlFor={id("description")}>
               <textarea
-                id="description"
+                id={id("description")}
                 name="description"
                 required
                 rows={4}
@@ -316,9 +324,9 @@ export function RequestForm({ onCreated }: { onCreated: (listing: PublicListing)
             </div>
           )}
 
-          <Field label={t.fieldName} htmlFor="contact_name">
+          <Field label={t.fieldName} htmlFor={id("contact_name")}>
             <input
-              id="contact_name"
+              id={id("contact_name")}
               name="contact_name"
               required
               maxLength={80}
@@ -329,9 +337,9 @@ export function RequestForm({ onCreated }: { onCreated: (listing: PublicListing)
           </Field>
 
           <div>
-            <Field label={t.fieldNumber} htmlFor="contact_number">
+            <Field label={t.fieldNumber} htmlFor={id("contact_number")}>
               <input
-                id="contact_number"
+                id={id("contact_number")}
                 name="contact_number"
                 type="tel"
                 required
@@ -358,6 +366,21 @@ export function RequestForm({ onCreated }: { onCreated: (listing: PublicListing)
           </button>
         </div>
       </form>
+    </>
+  );
+
+  if (variant === "bare") return content;
+
+  return (
+    <section
+      id="list-property"
+      className="rounded-[28px] bg-white p-5 shadow-[0_18px_50px_rgba(23,49,43,.10)] sm:p-8"
+      aria-labelledby="form-heading"
+    >
+      <h2 id="form-heading" className="sr-only">
+        Property request form
+      </h2>
+      {content}
     </section>
   );
 }
