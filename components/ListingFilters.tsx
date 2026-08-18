@@ -4,6 +4,7 @@ import { useLanguage } from "@/components/LanguageProvider";
 import {
   BEDROOM_OPTIONS,
   PROPERTY_TYPES,
+  propertyTypeHasBedrooms,
   type Bedrooms,
   type ListingCategory,
   type PropertyType,
@@ -30,6 +31,10 @@ export function ListingFilters({
   counts: { all: number; requests: number; listings: number };
 }) {
   const { t } = useLanguage();
+  // "All types" can still include houses/apartments, so bedrooms stays
+  // relevant there — only hide it once the filter is narrowed to a
+  // property type that never has bedrooms (Land, Commercial space).
+  const showBedrooms = propertyType === "all" || propertyTypeHasBedrooms(propertyType);
 
   const categories: { value: ListingCategory; label: string; count: number }[] = [
     { value: "all", label: t.categoryAll, count: counts.all },
@@ -74,19 +79,21 @@ export function ListingFilters({
           ))}
         </select>
 
-        <select
-          value={bedrooms}
-          onChange={(e) => onBedroomsChange(e.target.value as Bedrooms | "all")}
-          className={selectClass}
-          aria-label={t.fieldBedrooms}
-        >
-          <option value="all">{t.filterAnyBedrooms}</option>
-          {BEDROOM_OPTIONS.filter((b) => b !== "Not specified").map((b) => (
-            <option key={b} value={b}>
-              {bedroomLabel(b, t)}
-            </option>
-          ))}
-        </select>
+        {showBedrooms && (
+          <select
+            value={bedrooms}
+            onChange={(e) => onBedroomsChange(e.target.value as Bedrooms | "all")}
+            className={selectClass}
+            aria-label={t.fieldBedrooms}
+          >
+            <option value="all">{t.filterAnyBedrooms}</option>
+            {BEDROOM_OPTIONS.filter((b) => b !== "Not specified").map((b) => (
+              <option key={b} value={b}>
+                {bedroomLabel(b, t)}
+              </option>
+            ))}
+          </select>
+        )}
       </div>
     </div>
   );

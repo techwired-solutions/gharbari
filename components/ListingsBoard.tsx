@@ -5,13 +5,27 @@ import { useLanguage } from "@/components/LanguageProvider";
 import { ListingCard } from "@/components/ListingCard";
 import { ListingFilters } from "@/components/ListingFilters";
 import { listingMatchesQuery } from "@/lib/search";
-import { CATEGORY_LISTING_TYPES, type Bedrooms, type ListingCategory, type PropertyType, type PublicListing } from "@/lib/types";
+import {
+  CATEGORY_LISTING_TYPES,
+  propertyTypeHasBedrooms,
+  type Bedrooms,
+  type ListingCategory,
+  type PropertyType,
+  type PublicListing,
+} from "@/lib/types";
 
 export function ListingsBoard({ listings, searchQuery }: { listings: PublicListing[]; searchQuery: string }) {
   const { t } = useLanguage();
   const [category, setCategory] = useState<ListingCategory>("all");
   const [propertyType, setPropertyType] = useState<PropertyType | "all">("all");
   const [bedrooms, setBedrooms] = useState<Bedrooms | "all">("all");
+
+  function handlePropertyTypeChange(next: PropertyType | "all") {
+    setPropertyType(next);
+    if (next !== "all" && !propertyTypeHasBedrooms(next)) {
+      setBedrooms("all");
+    }
+  }
 
   const searched = useMemo(
     () => listings.filter((listing) => listingMatchesQuery(listing, searchQuery)),
@@ -64,7 +78,7 @@ export function ListingsBoard({ listings, searchQuery }: { listings: PublicListi
           category={category}
           onCategoryChange={setCategory}
           propertyType={propertyType}
-          onPropertyTypeChange={setPropertyType}
+          onPropertyTypeChange={handlePropertyTypeChange}
           bedrooms={bedrooms}
           onBedroomsChange={setBedrooms}
           counts={counts}

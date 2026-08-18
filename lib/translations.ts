@@ -107,7 +107,7 @@ export const translations: Record<Lang, Copy> = {
   en: {
     brand: "GharBari",
     navList: "List a property",
-    navGetStarted: "Get started",
+    navGetStarted: "Find/List Property",
     heroKicker: "Real estate, made neighborly",
     heroTitle: "Find the place that feels like home.",
     heroDescription:
@@ -215,7 +215,7 @@ export const translations: Record<Lang, Copy> = {
   ne: {
     brand: "घरबारी",
     navList: "सम्पत्ति सूचीकरण गर्नुहोस्",
-    navGetStarted: "सुरु गर्नुहोस्",
+    navGetStarted: "खोज्नुहोस् / सूचीकरण",
     heroKicker: "घर जग्गा, अझ सजिलो",
     heroTitle: "आफ्नो मनपर्ने घर फेला पार्नुहोस्।",
     heroDescription:

@@ -21,15 +21,21 @@ export function Hero({
 
   function openSearch() {
     setSearchOpen(true);
-    // Focus after the input mounts, then jump straight to the results so
-    // typing here feels like it does something immediately.
+    // Just focus — don't scroll yet. Scrolling immediately fought with
+    // typing (mobile browsers can blur the input mid-scroll), so results
+    // are revealed explicitly instead: press Enter/Go, or scroll down.
     requestAnimationFrame(() => searchInputRef.current?.focus());
-    document.getElementById("community-board")?.scrollIntoView({ behavior: "smooth" });
   }
 
   function closeSearch() {
     setSearchOpen(false);
     onSearchChange("");
+  }
+
+  function handleSearchKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Enter") {
+      document.getElementById("community-board")?.scrollIntoView({ behavior: "smooth" });
+    }
   }
 
   return (
@@ -51,6 +57,7 @@ export function Hero({
                   type="search"
                   value={searchQuery}
                   onChange={(e) => onSearchChange(e.target.value)}
+                  onKeyDown={handleSearchKeyDown}
                   placeholder={t.searchPlaceholder}
                   className="w-32 min-w-0 bg-transparent py-2 text-sm text-white placeholder:text-white/60 outline-none sm:w-56"
                 />
