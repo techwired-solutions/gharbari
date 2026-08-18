@@ -31,7 +31,7 @@ export function LanguageToggle() {
           lang === "ne" ? "bg-white text-ink" : "text-white/80 hover:text-white"
         }`}
       >
-        NE
+        नेपा
       </button>
     </div>
   );
