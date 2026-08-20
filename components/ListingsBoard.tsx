@@ -1,61 +1,30 @@
 "use client";
 
-import { useMemo, useState } from "react";
 import { useLanguage } from "@/components/LanguageProvider";
 import { ListingCard } from "@/components/ListingCard";
 import { ListingFilters } from "@/components/ListingFilters";
-import { listingMatchesQuery } from "@/lib/search";
-import {
-  CATEGORY_LISTING_TYPES,
-  propertyTypeHasBedrooms,
-  type Bedrooms,
-  type ListingCategory,
-  type PropertyType,
-  type PublicListing,
-} from "@/lib/types";
+import type { useListingFilters } from "@/hooks/useListingFilters";
+import type { PublicListing } from "@/lib/types";
 
-export function ListingsBoard({ listings, searchQuery }: { listings: PublicListing[]; searchQuery: string }) {
+export function ListingsBoard({
+  listings,
+  totalCount,
+  filters,
+}: {
+  /** Already-filtered listings (filters.filtered from the shared hook). */
+  listings: PublicListing[];
+  /** Unfiltered total, to tell "no listings yet" apart from "no matches". */
+  totalCount: number;
+  filters: ReturnType<typeof useListingFilters>;
+}) {
   const { t } = useLanguage();
-  const [category, setCategory] = useState<ListingCategory>("all");
-  const [propertyType, setPropertyType] = useState<PropertyType | "all">("all");
-  const [bedrooms, setBedrooms] = useState<Bedrooms | "all">("all");
-
-  function handlePropertyTypeChange(next: PropertyType | "all") {
-    setPropertyType(next);
-    if (next !== "all" && !propertyTypeHasBedrooms(next)) {
-      setBedrooms("all");
-    }
-  }
-
-  const searched = useMemo(
-    () => listings.filter((listing) => listingMatchesQuery(listing, searchQuery)),
-    [listings, searchQuery]
-  );
-
-  const counts = useMemo(
-    () => ({
-      all: searched.length,
-      requests: searched.filter((l) => CATEGORY_LISTING_TYPES.requests.includes(l.listing_type)).length,
-      listings: searched.filter((l) => CATEGORY_LISTING_TYPES.listings.includes(l.listing_type)).length,
-    }),
-    [searched]
-  );
-
-  const filtered = useMemo(() => {
-    return searched.filter((listing) => {
-      if (category !== "all" && !CATEGORY_LISTING_TYPES[category].includes(listing.listing_type)) return false;
-      if (propertyType !== "all" && listing.property_type !== propertyType) return false;
-      if (bedrooms !== "all" && listing.bedrooms !== bedrooms) return false;
-      return true;
-    });
-  }, [searched, category, propertyType, bedrooms]);
 
   const countLabel =
-    filtered.length === 0
+    listings.length === 0
       ? null
-      : filtered.length === 1
+      : listings.length === 1
         ? t.listingCountOne
-        : t.listingCountMany(filtered.length);
+        : t.listingCountMany(listings.length);
 
   return (
     <section id="community-board" className="w-full bg-sand-dim px-5 py-14 sm:px-8 lg:px-10">
@@ -75,22 +44,22 @@ export function ListingsBoard({ listings, searchQuery }: { listings: PublicListi
         </div>
 
         <ListingFilters
-          category={category}
-          onCategoryChange={setCategory}
-          propertyType={propertyType}
-          onPropertyTypeChange={handlePropertyTypeChange}
-          bedrooms={bedrooms}
-          onBedroomsChange={setBedrooms}
-          counts={counts}
+          category={filters.category}
+          onCategoryChange={filters.setCategory}
+          propertyType={filters.propertyType}
+          onPropertyTypeChange={filters.setPropertyType}
+          bedrooms={filters.bedrooms}
+          onBedroomsChange={filters.setBedrooms}
+          counts={filters.counts}
         />
 
-        {filtered.length === 0 ? (
+        {listings.length === 0 ? (
           <p className="rounded-2xl border border-dashed border-[#c9d5cd] bg-white/70 px-6 py-12 text-center leading-relaxed text-ink/70">
-            {listings.length === 0 ? t.emptyState : t.noSearchResults}
+            {totalCount === 0 ? t.emptyState : t.noSearchResults}
           </p>
         ) : (
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {filtered.map((listing) => (
+            {listings.map((listing) => (
               <ListingCard key={listing.id} listing={listing} t={t} />
             ))}
           </div>

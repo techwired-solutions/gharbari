@@ -1,42 +1,41 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { Search, SquarePlus, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Search, SquarePlus } from "lucide-react";
 import { useLanguage } from "@/components/LanguageProvider";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { HeroArt } from "@/components/HeroArt";
+import { SearchFilterPanel } from "@/components/SearchFilterPanel";
+import type { useListingFilters } from "@/hooks/useListingFilters";
 
 export function Hero({
-  searchQuery,
-  onSearchChange,
+  filters,
   onOpenQuickForm,
 }: {
-  searchQuery: string;
-  onSearchChange: (query: string) => void;
+  filters: ReturnType<typeof useListingFilters>;
   onOpenQuickForm: () => void;
 }) {
   const { t } = useLanguage();
   const [searchOpen, setSearchOpen] = useState(false);
-  const searchInputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  function openSearch() {
-    setSearchOpen(true);
-    // Just focus — don't scroll yet. Scrolling immediately fought with
-    // typing (mobile browsers can blur the input mid-scroll), so results
-    // are revealed explicitly instead: press Enter/Go, or scroll down.
-    requestAnimationFrame(() => searchInputRef.current?.focus());
-  }
-
-  function closeSearch() {
-    setSearchOpen(false);
-    onSearchChange("");
-  }
-
-  function handleSearchKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === "Enter") {
-      document.getElementById("community-board")?.scrollIntoView({ behavior: "smooth" });
+  useEffect(() => {
+    if (!searchOpen) return;
+    function onPointerDown(e: PointerEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setSearchOpen(false);
+      }
     }
-  }
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") setSearchOpen(false);
+    }
+    document.addEventListener("pointerdown", onPointerDown);
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown);
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [searchOpen]);
 
   return (
     <section className="relative min-h-[520px] overflow-hidden">
@@ -49,37 +48,21 @@ export function Hero({
           </a>
 
           <div className="flex min-w-0 items-center gap-2">
-            {searchOpen ? (
-              <div className="flex min-w-0 items-center gap-1.5 rounded-full bg-white/15 pl-3 pr-1.5">
-                <Search className="h-4 w-4 shrink-0 text-white/70" />
-                <input
-                  ref={searchInputRef}
-                  type="search"
-                  value={searchQuery}
-                  onChange={(e) => onSearchChange(e.target.value)}
-                  onKeyDown={handleSearchKeyDown}
-                  placeholder={t.searchPlaceholder}
-                  className="w-32 min-w-0 bg-transparent py-2 text-sm text-white placeholder:text-white/60 outline-none sm:w-56"
-                />
-                <button
-                  type="button"
-                  onClick={closeSearch}
-                  aria-label="Close search"
-                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-white/80 transition hover:bg-white/15"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-            ) : (
+            <div ref={containerRef} className="relative">
               <button
                 type="button"
-                onClick={openSearch}
+                onClick={() => setSearchOpen((v) => !v)}
                 aria-label={t.searchAriaLabel}
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/30 text-white transition hover:bg-white/10"
+                aria-expanded={searchOpen}
+                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border transition ${
+                  searchOpen ? "border-white bg-white text-ink" : "border-white/30 text-white hover:bg-white/10"
+                }`}
               >
                 <Search className="h-4 w-4" />
               </button>
-            )}
+              {searchOpen && <SearchFilterPanel filters={filters} onClose={() => setSearchOpen(false)} />}
+            </div>
+
             <LanguageToggle />
             <button
               type="button"

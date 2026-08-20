@@ -89,6 +89,14 @@ export function propertyTypeHasBedrooms(type: PropertyType | ""): boolean {
   return PROPERTY_TYPES_WITH_BEDROOMS.includes(type as PropertyType);
 }
 
+// A photo is something you have of a property you're offering, not
+// something you'd attach to a request to find one — so the photo field
+// only makes sense once "I want to" is Sell/Rent out.
+export const LISTING_TYPES_WITH_PHOTOS: ListingType[] = ["Sell", "Rent out"];
+export function listingTypeHasPhotos(type: ListingType): boolean {
+  return LISTING_TYPES_WITH_PHOTOS.includes(type);
+}
+
 // The community board mixes two different intents under one roof — people
 // looking for a property (Buy/Rent) and people offering one (Sell/Rent
 // out). Splitting them into a category filter makes "what am I even

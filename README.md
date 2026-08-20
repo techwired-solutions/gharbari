@@ -134,22 +134,28 @@ bypasses RLS and column grants.
 
 ## Search, categories & filters
 
-A search icon in the top nav expands into a live filter over the community
-board — matches on location, property type, listing type, description, and
-price. Client-side only, no extra request; the admin dashboard has the same
-filter behavior in its own search box (shared logic in `lib/search.ts`).
+The search icon in the top nav opens a dropdown panel with a search box
+*and* the full filter set (category, property type, bedrooms) — not just
+text search — so narrowing results down doesn't require scrolling to the
+board first. Typing there never auto-scrolls (that used to fight with
+typing on mobile); press Enter/Go or the "View N results" button to jump
+down. The panel and the board's own filter bar share one source of truth
+(`hooks/useListingFilters.ts`), so a filter set in either place is
+reflected in both immediately. The admin dashboard has its own separate
+search box using the same match logic (`lib/search.ts`).
 
-The board also splits listings into two categories — **Looking for**
-(Buy/Rent requests) and **Available** (Sell/Rent out listings) — since those
-represent opposite intents and mixing them together made the board harder
-to scan. A "Property type" and "Bedrooms" filter sit alongside the category
-tabs; all of it (search, category, filters) combines with AND logic. Price
-and area aren't filterable as numeric ranges since they're free-text fields
-on the form (`"NPR 2-3 crore"`, `"5 aana"`, etc.) rather than structured
-numbers — search still matches against their text. Turning them into real
-numeric ranges would mean redesigning the submission form to collect
-structured min/max values instead of free text, which is a bigger change;
-happy to do it as a follow-up if stricter filtering turns out to matter.
+The board splits listings into two categories — **Looking for** (Buy/Rent
+requests) and **Available** (Sell/Rent out listings) — since those represent
+opposite intents and mixing them together made the board harder to scan.
+Bedrooms hides itself once Property Type is narrowed to Land or Commercial
+space, where it doesn't apply. Everything (search, category, property type,
+bedrooms) combines with AND logic. Price and area aren't filterable as
+numeric ranges since they're free-text fields on the form (`"NPR 2-3
+crore"`, `"5 aana"`, etc.) rather than structured numbers — search still
+matches against their text. Turning them into real numeric ranges would
+mean redesigning the submission form to collect structured min/max values
+instead of free text, which is a bigger change; happy to do it as a
+follow-up if stricter filtering turns out to matter.
 
 ## Listing pages & sharing
 
@@ -161,14 +167,24 @@ has Open Graph/Twitter Card metadata (title, description, first photo) so
 pasting a listing link into WhatsApp, Messenger, etc. shows a real preview
 card instead of a bare URL.
 
+## One form, not two
+
+Find and List used to be separate tabs, but they share almost every field —
+so there's a single form now. "I want to" is a plain dropdown with all four
+options (Buy, Rent, Sell, Rent out); fields adjust based on which one is
+picked: Bedrooms only for House/Apartment, Photos only for Sell/Rent out
+(a "find" request has no property to photograph).
+
 ## Nav quick-access form
 
-The "Get started" button in the nav opens the same Find/List form in a
-modal, so a visitor can submit a request or a listing from anywhere on the
-page without scrolling down to the embedded form section
-(`components/Modal.tsx` + `components/RequestForm.tsx`'s `variant="bare"`).
-Both instances share the same submit handler and update the same listings
-state; they're kept from colliding in the DOM via `idPrefix`.
+The "Find/List Property" button in the nav opens the same form in a modal,
+so a visitor can submit a request or a listing from anywhere on the page
+without scrolling down to the embedded form section (`components/Modal.tsx`
++ `components/RequestForm.tsx`'s `variant="bare"`). Both instances share the
+same submit handler and update the same listings state; they're kept from
+colliding in the DOM via `idPrefix`. The modal has no title bar — the
+form's own "I want to" field already says what it's for, so a header would
+just have duplicated that and eaten space better spent on the form itself.
 
 ## Photos
 
@@ -228,10 +244,12 @@ app/
 components/                Public site UI (Hero, RequestForm, ListingsBoard, ...)
 components/ImagePicker.tsx  Shared photo upload/preview field (public form + admin)
 components/ListingDetail.tsx  The /listing/[id] page's content (gallery, CTA, share)
-components/ListingFilters.tsx  Category tabs + property type/bedrooms filters
+components/ListingFilters.tsx  Category tabs + property type/bedrooms filters (used by both the board and the nav panel)
+components/SearchFilterPanel.tsx  The nav search icon's dropdown (search box + ListingFilters + "View results")
 components/Modal.tsx          Generic dialog (portal, Esc/backdrop close) — used by the nav's quick-access form
 components/ShareButton.tsx    navigator.share with copy-link fallback
 components/admin/          Admin dashboard UI
+hooks/useListingFilters.ts  Single source of truth for search/category/filter state — shared by the board's filter bar and the nav's search panel so they can never drift out of sync
 lib/
   supabase.ts               Anon-key client (RLS-scoped)
   supabase-admin.ts          Service-role client (server-only, bypasses RLS)

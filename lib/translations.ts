@@ -13,11 +13,9 @@ export interface Copy {
   requestEyebrow: string;
   requestTitle: string;
   requestDescription: string;
+  requestFormHeading: string;
   benefitLocation: string;
   benefitContact: string;
-
-  tabFind: string;
-  tabList: string;
 
   fieldListingType: string;
   optBuy: string;
@@ -82,6 +80,7 @@ export interface Copy {
 
   searchAriaLabel: string;
   searchPlaceholder: string;
+  viewResults: (n: number) => string;
 
   categoryAll: string;
   categoryRequests: string;
@@ -119,13 +118,11 @@ export const translations: Record<Lang, Copy> = {
     requestTitle: "Tell us what you need.",
     requestDescription:
       "Whether you're searching for a family home, rental, or a plot of land, share the details that matter most.",
+    requestFormHeading: "What are you looking to do?",
     benefitLocation:
       "Add your preferred location so the right people can find your request.",
     benefitContact:
       "Include a phone number so interested buyers, renters, or owners can reach you directly.",
-
-    tabFind: "Find a property",
-    tabList: "List a property",
 
     fieldListingType: "I want to",
     optBuy: "Buy a property",
@@ -192,6 +189,7 @@ export const translations: Record<Lang, Copy> = {
 
     searchAriaLabel: "Search listings",
     searchPlaceholder: "Search by location, property type…",
+    viewResults: (n: number) => `View ${n} result${n === 1 ? "" : "s"}`,
 
     categoryAll: "All",
     categoryRequests: "Looking for",
@@ -227,13 +225,11 @@ export const translations: Record<Lang, Copy> = {
     requestTitle: "तपाईंलाई के चाहिन्छ भन्नुहोस्।",
     requestDescription:
       "पारिवारिक घर, भाडाको घर, वा जग्गा खोज्दै हुनुहुन्छ भने, महत्त्वपूर्ण विवरणहरू साझा गर्नुहोस्।",
+    requestFormHeading: "तपाईं के गर्न चाहनुहुन्छ?",
     benefitLocation:
       "तपाईंको मनपर्ने स्थान थप्नुहोस् ताकि सही व्यक्तिले तपाईंको अनुरोध भेट्टाउन सकून्।",
     benefitContact:
       "फोन नम्बर राख्नुहोस् ताकि इच्छुक खरिददार, भाडावाला वा मालिकले सिधै सम्पर्क गर्न सकून्।",
-
-    tabFind: "सम्पत्ति खोज्नुहोस्",
-    tabList: "सम्पत्ति सूचीकरण",
 
     fieldListingType: "म चाहन्छु",
     optBuy: "सम्पत्ति किन्ने",
@@ -300,6 +296,7 @@ export const translations: Record<Lang, Copy> = {
 
     searchAriaLabel: "सूचीहरू खोज्नुहोस्",
     searchPlaceholder: "स्थान, सम्पत्तिको प्रकार अनुसार खोज्नुहोस्…",
+    viewResults: (n: number) => `${n} नतिजा हेर्नुहोस्`,
 
     categoryAll: "सबै",
     categoryRequests: "खोजिरहेको",
